@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+
+from beepy.tools import BeePyDump
+
+if __name__ == '__main__':
+  print(json.dumps(BeePyDump().dump(), indent=4))
