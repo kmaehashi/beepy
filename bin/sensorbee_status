@@ -3,9 +3,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
 import json
 
 from beepy.tools import BeePyDump
 
 if __name__ == '__main__':
-  print(json.dumps(BeePyDump().dump(), indent=4))
+  args = sys.argv[1:] + ['127.0.0.1', '15601']
+  print(json.dumps(BeePyDump(args[0], args[1]).dump(), indent=4))
