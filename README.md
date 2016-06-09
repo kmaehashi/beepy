@@ -11,7 +11,7 @@ python setup.py install
 Dump all status values from SensorBee server:
 
 ```
-bin/sensorbee_status
+bin/sensorbee_status 127.0.0.1 15601
 ```
 
 ```js
