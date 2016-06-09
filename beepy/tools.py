@@ -10,6 +10,23 @@ class BeePyDump(object):
   def __init__(self, host='127.0.0.1', port=15601):
     self._api = BeePyAPI(host, port)
 
+  def dump_dot_for(self, t):
+    buf = ['digraph {']
+
+    for s in map(lambda x: x['name'], self._api.sources(t)['sources']):
+      v = self._api.source(t, s)['source']['status']['output_stats']['outputs']
+      for out in v.keys():
+        buf += ['{0} -> {1}'.format(s, out)]
+
+    for s in map(lambda x: x['name'], self._api.streams(t)['streams']):
+      v = self._api.stream(t, s)['stream']['status']['output_stats']['outputs']
+      for out in v.keys():
+        buf += ['{0} -> {1}'.format(s, out)]
+
+    buf += ['}']
+
+    return '\n'.join(buf)
+
   def dump(self):
     server = defaultdict(dict)
     server['runtime_status'] = self._api.runtime_status()

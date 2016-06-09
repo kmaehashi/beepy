@@ -1,5 +1,7 @@
 # BeePy
 
+This is a roughly-implemented prototype.
+
 ## Install
 
 ```
@@ -7,6 +9,14 @@ python setup.py install
 ```
 
 ## Tools
+
+Create dependency graph:
+
+```
+bin/sensorbee_status_dot 127.0.0.1 15601 jubatus_iris > jubatus_iris.dot
+dot -Tpng jubatus_iris.dot -o sample.png
+```
+![sample](sample.png)
 
 Dump all status values from SensorBee server:
 
