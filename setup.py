@@ -17,5 +17,11 @@ setup(name='beepy',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
       ],
+      entry_points={
+          'console_scripts': [
+              'beepy=beepy.cli:_beepy',
+              'beepy_dot=beepy.cli:_beepy_dot',
+          ],
+      },
       packages=['beepy'],
 )

@@ -13,7 +13,7 @@ python setup.py install
 Create dependency graph:
 
 ```
-bin/sensorbee_status_dot 127.0.0.1 15601 jubatus_iris > jubatus_iris.dot
+beepy_dot 127.0.0.1 15601 jubatus_iris > jubatus_iris.dot
 dot -Tpng jubatus_iris.dot -o sample.png
 ```
 ![sample](sample.png)
@@ -23,7 +23,7 @@ Note: finished inputs/outputs are not displayed, as they no longer appear as sta
 Dump all status values from SensorBee server:
 
 ```
-bin/sensorbee_status 127.0.0.1 15601
+beepy 127.0.0.1 15601
 ```
 
 ```js
