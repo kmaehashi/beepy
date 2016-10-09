@@ -50,11 +50,10 @@ class BeePyAPI(object):
     return self._req('topologies/{0}/sinks/{1}'.format(t, s))
 
   def query(self, t, q):
-    close = False
-    f = urlopen(self._url('topologies/{0}/queries'.format(t)), json.dumps({'queries': q}).encode())
     close = True
+    f = urlopen(self._url('topologies/{0}/queries'.format(t)), json.dumps({'queries': q}).encode())
     try:
-      msg = MessageWrapper(f.info())
+      msg = _MessageWrapper(f.info())
       mimetype = msg.get_content_type()
       if mimetype == 'application/json':
         return json.loads(f.read().decode())
@@ -68,7 +67,7 @@ class BeePyAPI(object):
       if close:
         f.close()
 
-class MessageWrapper(object):
+class _MessageWrapper(object):
   def __init__(self, msg):
     self.msg = msg
 
@@ -94,10 +93,8 @@ class ResultSet(object):
 
   def __iter__(self):
     with contextlib.closing(self._f) as f:
-      parser = None
+      parser = email.parser.FeedParser()
       while True:
-        if not parser:
-          parser = email.parser.FeedParser()
         line = f.readline()
         if not line: break
         if line.rstrip() == '--{0}'.format(self._boundary).encode():
@@ -106,4 +103,4 @@ class ResultSet(object):
             parser.feed(line.decode())
             line = f.readline()
           yield json.loads(f.read(int(parser.close()['Content-Length'])).decode())
-          parser = None
+          parser = email.parser.FeedParser()
