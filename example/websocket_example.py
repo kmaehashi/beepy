@@ -16,19 +16,28 @@ import time
 #websocket.enableTrace(True)
 
 class WebSocketExample(object):
-  def main(self, topology='main'):
+  def main(self, topology='ws_test'):
     api = beepy.api.BeePyAPI()
-    client = api.wsquery(topology)
-    client.start()
+    api.create_topology(topology)
 
-    def callback(client, rid, type, msg):
-      print("RID: {0}".format(rid))
-      print("Type: {0}".format(type))
-      print("Message: {0}".format(msg))
+    try:
+      client = api.wsquery(topology)
+      client.start()
 
-    client.send("eval 1+2+3;", callback, 1)
-    client.send("invalid_syntax", callback, 2)
-    time.sleep(3)
+      def callback(client, rid, type, msg):
+        print("-------------------------------")
+        print("RID: {0}".format(rid))
+        print("Type: {0}".format(type))
+        print("Message: {0}".format(msg))
+
+      client.send("eval 1+2+3;", callback, 1)
+      client.send("invalid_syntax", callback, 2)
+      api.query(topology, "CREATE SOURCE node_stats TYPE node_statuses")  # sync
+      client.send("SELECT RSTREAM * FROM node_stats [RANGE 1 TUPLES];", callback, 3)
+      time.sleep(10)
+    finally:
+      api.delete_topology(topology)
+      time.sleep(5)
 
 if __name__ == '__main__':
   WebSocketExample().main()
