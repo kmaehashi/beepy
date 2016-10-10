@@ -7,20 +7,24 @@ import json
 import email.parser
 
 try:
-  from urllib.request import urlopen
+  from urllib.request import urlopen, Request
 except ImportError:
-  from urllib2 import urlopen
+  from urllib2 import urlopen, Request
 
 class BeePyAPI(object):
   def __init__(self, host='127.0.0.1', port=15601):
     self.host = host
     self.port = port
 
-  def _url(self, path):
-    return 'http://{0}:{1}/api/v1/{2}'.format(self.host, self.port, path)
+  def _url(self, path, scheme='http'):
+    return '{0}://{1}:{2}/api/v1/{3}'.format(scheme, self.host, self.port, path)
 
-  def _req(self, path):
-    return json.loads(urlopen(self._url(path)).read().decode())
+  def _req(self, path, data=None, method=None):
+    if method is None:
+      method = 'GET' if data is None else 'POST'
+    req = Request(self._url(path), data=data)
+    req.get_method = lambda: method
+    return json.loads(urlopen(req).read().decode())
 
   def runtime_status(self):
     return self._req('runtime_status')
@@ -30,6 +34,12 @@ class BeePyAPI(object):
 
   def topology(self, t):
     return self._req('topologies/{0}'.format(t))
+
+  def create_topology(self, t):
+    return self._req('topologies', json.dumps({'name': t}).encode())
+
+  def delete_topology(self, t):
+    return self._req('topologies/{0}'.format(t), None, 'DELETE')
 
   def sources(self, t):
     return self._req('topologies/{0}/sources'.format(t))
