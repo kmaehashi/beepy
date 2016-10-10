@@ -1,11 +1,14 @@
 # BeePy
 
-This is a roughly-implemented prototype.
+This is an unofficial Python client of SensorBee REST API.
 
 ## Install
 
 ```
-python setup.py install
+pip install git+https://github.com/kmaehashi/beepy.git
+
+# To use WebSocket API:
+pip install websocket-client
 ```
 
 ## Tools
