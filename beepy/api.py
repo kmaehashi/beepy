@@ -5,11 +5,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import contextlib
 import json
 import email.parser
+import threading
+import time
 
 try:
   from urllib.request import urlopen, Request
 except ImportError:
   from urllib2 import urlopen, Request
+
+try:
+  import websocket
+  _WEBSOCKET_AVAILABLE = True
+except ImportError:
+  _WEBSOCKET_AVAILABLE = False
 
 class BeePyAPI(object):
   def __init__(self, host='127.0.0.1', port=15601):
@@ -76,6 +84,92 @@ class BeePyAPI(object):
     finally:
       if close:
         f.close()
+
+  def wsquery(self, t):
+    if not _WEBSOCKET_AVAILABLE:
+      raise RuntimeError('websocket module is unavailable')
+    return WebSocketAPI(self._url('topologies/{0}/wsqueries'.format(t), 'ws'))
+
+class WebSocketAPI(object):
+  def __init__(self, uri):
+    self._uri = uri
+    self._app = None
+    self._open = False
+    self._error = None
+    self._callback = {}
+    self.setup()
+
+  def __del__(self):
+    app = self._app
+    if app is not None:
+      app.close()
+
+  def start(self, async=False):
+    """
+    Starts the client application thread.  When ``async`` is set to False,
+    this method waits for the connection to be established.
+    """
+    t = threading.Thread(target=self.run)
+    t.daemon = True
+    t.start()
+    if not async:
+      while not self._open:
+        if self._error is not None:
+          raise self._error
+        time.sleep(0.01)  # 10 msec
+
+  def send(self, queries, callback, rid):
+    """
+    Sends the queries.  ``callback`` must be a function that accepts
+    4 arguments (the client instance, request ID, message type and
+    message contents).  ``rid`` must be a unique request ID in int.
+    """
+    if not self._open:
+      raise RuntimeError('not connected')
+    data = json.dumps({'rid': int(rid), 'payload': {'queries': queries}}).encode()
+    self._callback[rid] = callback
+    self._app.send(data)
+
+  def close(self, **kwargs):
+    self._app.close(**kwargs)
+
+  def get_error(self):
+    return self._error
+
+  def setup(self, **kwargs):
+    """
+    ``setup`` is a low-level interface for users who need to configure
+    WebSocketApp details.
+    """
+    self._app = websocket.WebSocketApp(
+      self._uri,
+      on_open=self._on_open,
+      on_message=self._on_message,
+      on_error=self._on_error,
+      on_close=self._on_close,
+      **kwargs
+    )
+
+  def run(self, **kwargs):
+    """
+    ``run`` is a low-level interface for users who want to manually manage
+    the application thread.
+    """
+    self._app.run_forever(**kwargs)
+
+  def _on_open(self, ws):
+    self._open = True
+
+  def _on_message(self, ws, data):
+    msg = json.loads(data)
+    cb = self._callback[msg['rid']]
+    cb(self, msg['rid'], msg['type'], msg['payload'])
+
+  def _on_error(self, ws, err):
+    self._error = err
+
+  def _on_close(self, ws):
+    self._open = False
 
 class _MessageWrapper(object):
   def __init__(self, msg):
