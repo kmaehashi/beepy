@@ -3,10 +3,21 @@
 
 from setuptools import setup, find_packages
 
-setup(name='beepy',
-      version='0.0.1',
+def _read(filename):
+  with open(filename) as f:
+    return f.read()
+
+# Load package version.
+exec(_read('sensorbee/_version.py'))
+
+setup(name='sensorbee-python',
+      version=__version__,
+      description='SensorBee REST API Client',
+      long_description=_read('README.rst'),
+      url='https://github.com/kmaehashi/sensorbee-python',
       author='Kenichi Maehashi',
       author_email='webmaster@kenichimaehashi.com',
+      license='MIT',
       classifiers=[
           'Programming Language :: Python',
           'Programming Language :: Python :: 2',
@@ -17,11 +28,14 @@ setup(name='beepy',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
       ],
+      packages=find_packages(exclude=['sensorbee.test']),
+      test_suite = 'sensorbee.test',
       entry_points={
           'console_scripts': [
-              'beepy=beepy.cli:_beepy',
-              'beepy_dot=beepy.cli:_beepy_dot',
+              'sbstat=sensorbee.cli:sbstat',
           ],
       },
-      packages=['beepy'],
+      extras_require={
+          'websocket': ['websocket-client'],
+      },
 )
