@@ -39,14 +39,14 @@ def _beetop():
   def sorted_keys(td):
     sources = sorted(td['sources'].keys())
     outputs = []
-    for source_outputs in [x['status']['output_stats']['outputs'].keys() for x in td['sources'].values()]:
-      for source_output in source_outputs:
+    for source_outputs in sorted([x['status']['output_stats']['outputs'].keys() for x in td['sources'].values()]):
+      for source_output in sorted(source_outputs):
         if source_output not in outputs:
           outputs.append(source_output)
     while True:
       found_outputs = []
-      for out in filter(lambda x: x in td['streams'], outputs):
-        for found_out in td['streams'][out]['status']['output_stats'].keys():
+      for out in sorted(filter(lambda x: x in td['streams'], outputs)):
+        for found_out in sorted(td['streams'][out]['status']['output_stats'].keys()):
           if found_out not in found_outputs and found_out not in outputs:
             found_outputs.append(found_out)
       if len(found_outputs) == 0:
@@ -54,9 +54,9 @@ def _beetop():
       outputs += found_outputs
 
     streams = filter(lambda x: x in td['streams'], outputs)
-    dangling_streams = filter(lambda x: x not in outputs, td['streams'].keys())
+    dangling_streams = filter(lambda x: x not in outputs, sorted(td['streams'].keys()))
     sinks = filter(lambda x: x in td['sinks'], outputs)
-    dangling_sinks = filter(lambda x: x not in outputs, td['sinks'].keys())
+    dangling_sinks = filter(lambda x: x not in outputs, sorted(td['sinks'].keys()))
 
     return (sources, streams + dangling_streams, sinks + dangling_sinks)
 
