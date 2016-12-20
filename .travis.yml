@@ -16,12 +16,11 @@ install:
     - pushd /tmp
     - wget "https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz"
     - tar xf "go1.7.4.linux-amd64.tar.gz"
-    - mv go /usr/local
     - popd
 
     # Set Golang Environment
     - mkdir -p "${HOME}/gopath"
-    - export GOROOT="/usr/local/go"
+    - export GOROOT="/tmp/go"
     - export GOPATH="${HOME}/gopath"
     - export PATH="${GOROOT}/bin:${GOPATH}/bin:${PATH}"
 
@@ -30,7 +29,7 @@ install:
     - go get gopkg.in/sensorbee/sensorbee.v0/...
     - touch build.yaml
     - build_sensorbee
-    - cp sensorbee /usr/local/bin
+    - cp sensorbee ${GOPATH}/bin
     - popd
 
 script:
