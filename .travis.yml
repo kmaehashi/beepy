@@ -38,6 +38,8 @@ script:
 
     # Run SensorBee
     - sensorbee run &
+    - sleep 1
+    - sensorbee t c test_topology
 
     # Run Tests
     - python example/general_example.py
