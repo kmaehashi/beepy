@@ -17,8 +17,8 @@ install:
     - tar xf "go1.7.4.linux-amd64.tar.gz"
     - mkdir -p "${HOME}/gopath"
     - export GOROOT="${PWD}/go"
-    - export PATH="${GOROOT}/bin:${PATH}"
     - export GOPATH="${HOME}/gopath"
+    - export PATH="${GOROOT}/bin:${GOPATH}/bin:${PATH}"
 
     # Install SensorBee
     - go get gopkg.in/sensorbee/sensorbee.v0/...
@@ -28,6 +28,9 @@ install:
 script:
     # Install
     - pip install -e.[websocket]
+
+    # Run SensorBee
+    - sensorbee run &
 
     # Run Tests
     - python example/general_example.py
