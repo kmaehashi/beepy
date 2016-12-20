@@ -72,6 +72,9 @@ class SbStatCommand(object):
             if len(topos) == 1:
                 print_out(err, 'Using topology: {0}\n'.format(topos[0]))
                 params.topology = topos[0]
+            elif len(topos) == 0:
+                print_out(err, 'Error: No topology available on this SensorBee instance\n')
+                return 1
             else:
                 print_out(err, 'Error: --topology must be specified when multiple topologies are available\n')
                 print_out(err, 'Topologies: {0}\n'.format(', '.join(topos)))
